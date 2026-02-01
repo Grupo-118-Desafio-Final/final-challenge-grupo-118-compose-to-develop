@@ -1,0 +1,87 @@
+services:
+  otel-lgtm:
+    image: grafana/otel-lgtm
+    ports:
+      - 3000:3000
+      - 4040:4040
+      - 4317:4317
+      - 4318:4318
+      - 9090:9090
+    restart: always
+  
+  # Mongo service - OK
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      # Optional: set root username and password
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: SqlServer2019!
+    restart: always
+
+# Redis service - OK
+  redis:
+    image: redis:7.4-alpine
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass SqlServer2019!
+    volumes:
+      - redis:/data
+    restart: always
+
+# Sql Server service - OK
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      SA_PASSWORD: "SqlServer2019!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    restart: always
+
+# RabbitMQ service - OK
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: SqlServer2019!
+      RABBITMQ_DEFAULT_VHOST: /
+    restart: always
+
+# LavinMQ service - OK
+  lavinmq:
+    image: "cloudamqp/lavinmq:latest"
+    ports:
+      - 15673:15672 # HTTP
+      - 5673:5672 # AMQP
+    configs:
+      - source: lavinmq_config
+        target: /etc/lavinmq/lavinmq.ini
+    restart: always
+
+configs:
+  lavinmq_config:
+    content: |
+        [main]
+        default_user = guest
+        default_password = +pHuxkR9fCyrrwXjOD4BP4XbzO3l8LJr8YkThMgJ0yVHFRE+
+
+volumes:
+  mongodb_data:
+    driver: local
+  redis:
+    driver: local
+  sqlserver_data:
+    driver: local
+  rabbitmq_data:
+    driver: local
