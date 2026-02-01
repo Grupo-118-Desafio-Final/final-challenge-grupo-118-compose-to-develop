@@ -1,4 +1,5 @@
 services:
+# OpenTelemetry LGTM service - OK
   otel-lgtm:
     image: grafana/otel-lgtm
     ports:
