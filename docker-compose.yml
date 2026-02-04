@@ -70,6 +70,19 @@ services:
         target: /etc/lavinmq/lavinmq.ini
     restart: always
 
+# Para conectar com azurite: https://learn.microsoft.com/en-us/azure/storage/storage-explorer/vs-azure-tools-storage-manage-with-storage-explorer?tabs=linux-ubuntu
+# Connection string disponivel em: https://learn.microsoft.com/en-us/azure/storage/common/storage-connect-azurite?toc=%2Fazure%2Fstorage%2Fblobs%2Ftoc.json&bc=%2Fazure%2Fstorage%2Fblobs%2Fbreadcrumb%2Ftoc.json&tabs=blob-storage#http-connection-strings
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:latest
+    hostname: azurite
+    restart: always
+    command: ["azurite", "--blobHost", "0.0.0.0", "--blobPort", "10000", "--skipApiVersionCheck"]
+    ports:
+      - "10000:10000"
+    volumes:
+      - azurite_data:/data  
+
 configs:
   lavinmq_config:
     content: |
@@ -85,4 +98,6 @@ volumes:
   sqlserver_data:
     driver: local
   rabbitmq_data:
+    driver: local
+  azurite_data:
     driver: local
